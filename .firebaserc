@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "rethink-16f07"
+  },
+  "targets": {
+    "rethink-16f07": {
+      "hosting": {
+        "app": [
+          "rethink-backend"
+        ]
+      }
+    }
+  }
+}
