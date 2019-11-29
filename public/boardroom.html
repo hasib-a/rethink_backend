@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/Header-Dark.css">
   <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="icon" href="assets/img/logo_fav.png">
   <title>Rethink - Boardrooms</title>
 
   <!-- update the version number as needed -->
@@ -74,12 +75,16 @@
             <button class="btn btn-primary" id="createBorad_btn">Submit</button>
             <button class="btn btn-primary" id="clr_btn">Clear</button>
           </form>
+          <div class="alert alert-danger" role="alert" style="display: none;" id="signInAlert">
+            Please fill in all Fields.
+            <span class="close" id="close">&times;</span>
+          </div>
         </div>
         <div class="col-md">
           <h4><b>Boardroom List</b></h4>
           <div>
             <ul class="list-group" id="boardroomListPrint">
-
+              <li class="list-group-item" >You are not part of any boardrooms. :(</li>
             </ul>
           </div>
         </div>

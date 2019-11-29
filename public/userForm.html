@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/Header-Dark.css">
   <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
   <link rel="stylesheet" href="assets/css/styles.css">  
+  <link rel="icon" href="assets/img/logo_fav.png">
   <title>Rethink - Database Backend</title>
 
   <!-- update the version number as needed -->
@@ -81,6 +82,10 @@
           <button class="btn btn-primary" id="signUp_btn">Submit</button>
           <button class="btn btn-primary" id="clr_btn">Clear</button>
         </form>
+        <div class="alert alert-danger" role="alert" style="display: none;" id="signInAlert">
+          Please fill in all Fields.
+          <span class="close" id="close">&times;</span>
+        </div>
       </div>
       <div class="col-md">
           <h4><b>Current Users</b></h4>
@@ -91,21 +96,7 @@
       </div>
     </div>
 
-
-
-
-
-
   </div>
-
-
-
-
-
-
-
-
-
 
   <!-- Scripts -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>

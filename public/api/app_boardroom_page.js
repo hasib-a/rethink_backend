@@ -5,18 +5,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var queries = queryString.split("=");
     var idFinal = queries[1];
     document.querySelector('#pg_ttl').innerHTML = "Boardroom ID - " + idFinal + "  ";
-
-
-
-
+    var alertMem = document.getElementById("addUserInAlert");
+    var alertPoll = document.getElementById("addPollAlert");
+    
     //Start the necessary apis. 
     const db = firebase.firestore();
-    const functions = firebase.functions();
     const boardroomDB = db.collection("boardroom").doc(idFinal);
     const userDB = db.collection("users");
     const patientDB = db.collection("patient");
-
-
 
     //check if the user is logged on
     firebase.auth().onAuthStateChanged(user => {
@@ -36,59 +32,43 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.href = 'login.html';
         }
     });
+    
 
-    //get data for main header+info
-    boardroomDB.onSnapshot(doc => {
-        const data = doc.data();
-        var boardChair = data.boardChair;
-        boardName = data.boardName;
-        getUser(boardChair, boardName);
-    });
-
-    //create html for main header+info
-    function getUser(boardChair, boardName) {
-        userDB.doc(boardChair).onSnapshot(doc => {
-            const dataNew = doc.data();
-            boardUsername = dataNew.userName;
-            var htmlHeadingOut = "Boardroom Name: " + boardName + "</h5> <h5>Boardroom Chairman: " + boardUsername;
-            document.querySelector('#pg_content').innerHTML = htmlHeadingOut;
+    //get the data for the member and moderator list.
+    function createListMembers(adminCheck) {
+        boardroomDB.onSnapshot(doc => {
+            let members = doc.data().members;
+            let moderators = doc.data().moderators;
+            let adminCheckValue = "none";
+            if (adminCheck) {
+                adminCheckValue = "inline"
+            }
+            members.forEach(function (user) {
+                let htmlOutMembers = "";
+                document.querySelector('#memberPrint').innerHTML = "";
+                listMembers(user, htmlOutMembers, adminCheckValue)
+            });
+            moderators.forEach(function (user) {
+                let htmlOutmods = "";
+                document.querySelector('#moderatorPrint').innerHTML = "";
+                listModerators(user, htmlOutmods, adminCheckValue)
+            });
         });
-    };
-
-    function createListMembers(adminCheck){
-    boardroomDB.onSnapshot(doc => {
-        let members = doc.data().members;
-        console.log();
-        let moderators = doc.data().moderators;
-        console.log();
-        let adminCheckValue = "none";
-        if(adminCheck){
-            adminCheckValue = "inline"
-        }
-        members.forEach(function (user) {
-            let htmlOutMembers = "";
-            document.querySelector('#memberPrint').innerHTML = "";
-            listMembers(user, htmlOutMembers, adminCheckValue)
-        });
-        moderators.forEach(function (user) {
-            let htmlOutmods = "";
-            document.querySelector('#moderatorPrint').innerHTML = "";
-            listModerators(user, htmlOutmods, adminCheckValue)
-        });
-    });
     }
 
+    //create the members list
     function listMembers(id, htmlOutMembers, adminCheckValue) {
         userDB.doc(id).onSnapshot(doc => {
-            htmlOutMembers = "<li class=\"list-group-item\" value=\"" + id + "\"><h6>User ID: " + doc.id + "</h6><h6>Username: " + doc.data().userName + "</h6> <button style=\"display: "+ adminCheckValue +";\">delete</button></li>"
+            htmlOutMembers = "<li class=\"list-group-item\" value=\"" + id + "\"><h6>User ID: " + doc.id + "</h6><h6>Username: " + doc.data().userName + "</h6> <button class=\"deleteMem\" style=\"display: " + adminCheckValue + ";\">delete</button></li>"
             console.log();
             document.querySelector('#memberPrint').innerHTML += htmlOutMembers;
         });
     }
 
+    //creat the moderators list
     function listModerators(id, htmlOutmods, adminCheckValue) {
         userDB.doc(id).onSnapshot(doc => {
-            htmlOutmods = "<li class=\"list-group-item\" value=\"" + id + "\"><h6>User ID: " + doc.id + "</h6><h6>Username: " + doc.data().userName + "</h6> <button style=\"display: "+ adminCheckValue +";\">delete</button></li>"
+            htmlOutmods = "<li class=\"list-group-item\" value=\"" + id + "\"><h6>User ID: " + doc.id + "</h6><h6>Username: " + doc.data().userName + "</h6> <button class=\"deleteMod\" style=\"display: " + adminCheckValue + ";\">delete</button></li>"
 
             document.querySelector('#moderatorPrint').innerHTML += htmlOutmods;
         });
@@ -116,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
             adminUi.forEach(items => items.style.display = 'block');
             createListMembers(user.admin)
             createListBoards(user.admin)
-        }else{
+        } else {
             createListMembers(false)
             createListBoards(false)
         }
@@ -130,43 +110,44 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.preventDefault();
         ev.stopPropagation();
         firebase.auth().signOut().then(function () {
-            // Sign-out successful.
         }).catch(function (error) {
-            // An error happened.
         });
     }
 
+    //fill the patient list
     patientDB.get().then(function (querySnapshot) {
         var htmlOutUsers = "<option Selected></option>";
         querySnapshot.forEach(function (doc) {
-            htmlOutUsers += "<option>" + doc.id + " =>  "+ doc.data().pntName+  "</option>";
+            htmlOutUsers += "<option>" + doc.id + " =>  " + doc.data().pntName + "</option>";
         });
         document.querySelector('#patientList').innerHTML += htmlOutUsers;
-    }); 
-    function createListBoards(adminCheck){
-        boardroomDB.collection("polls").onSnapshot(doc =>{
+    });
+
+
+    function createListBoards(adminCheck) {
+        boardroomDB.collection("polls").onSnapshot(doc => {
             let adminCheckValue = "none";
-            if(adminCheck){
-            adminCheckValue = "inline"
+            if (adminCheck) {
+                adminCheckValue = "inline"
             }
             let htmlOutPoll = "";
-            doc.forEach(function (doc){
+            doc.forEach(function (doc) {
                 var startDate = timeConverter(doc.data().startTime.seconds);
                 var endDate = timeConverter(doc.data().endTime.seconds);
-                    //doc = list of docs in polls 
-                    htmlOutPoll += "<li class=\"list-group-item\" value=\"" + idFinal +" "+doc.id + "\"><div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Poll ID: " + doc.id + "</h6></div>"
-                    htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Poll Name: " + doc.data().pollName + "</h6></div></div>"
-                    htmlOutPoll += "<div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Start Date: " + startDate + " </h6></div><div class=\"p-2 bd-highlight\"><h6>End Date: " + endDate + "</h6></div></div>"
-                    htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Patient Name: " + doc.data().patient + " </h6></div><a href=\"pollPage.html?var1=" + idFinal + "&var2=" + doc.id + "\"><input type=\"button\" value=\"Enter Poll\"></a><button style=\"display: "+ adminCheckValue +";\">delete</button></li>"
-               
+                //doc = list of docs in polls 
+                htmlOutPoll += "<li class=\"list-group-item\" value=\"" + idFinal + " " + doc.id + "\"><div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Poll ID: " + doc.id + "</h6></div>"
+                htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Poll Name: " + doc.data().pollName + "</h6></div></div>"
+                htmlOutPoll += "<div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Start Date: " + startDate + " </h6></div><div class=\"p-2 bd-highlight\"><h6>End Date: " + endDate + "</h6></div></div>"
+                htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Patient Name: " + doc.data().patient + " </h6></div><a href=\"pollPage.html?var1=" + idFinal + "&var2=" + doc.id + "\"><input type=\"button\" value=\"Enter Poll\"></a><button class=\"deletePoll\"style=\"display: " + adminCheckValue + ";\">delete</button></li>"
+
             });
             document.querySelector('#pollPrint').innerHTML = htmlOutPoll;
-    
+
         });
     }
-    
-    
-         
+
+
+
 
 
 
@@ -178,21 +159,27 @@ document.addEventListener('DOMContentLoaded', function () {
         firebase.auth().currentUser.getIdTokenResult().then(IdTokenResult => {
             adminCheck = IdTokenResult.claims.admin;
             if (adminCheck == true) {
+                
                 let userID = document.forms.memberForm.elements.memberList.value;
                 let modStatus = document.forms.memberForm.elements.moderator.value;
                 userID = userID.split(' ')
-                
-                userDB.doc(userID[0]).collection("activeBoards").doc(idFinal).set({});
-                let boardQuery = boardroomDB;
-                if(modStatus == "Yes"){
-                    boardQuery.update({
-                        moderators: firebase.firestore.FieldValue.arrayUnion(userID[0])
-                    });
-                }else{
-                    boardQuery.update({
-                        members: firebase.firestore.FieldValue.arrayUnion(userID[0])
-                    });
+
+                if (userID == "") {
+                    alertMem.style.display = "block";
+                } else {
+                    let boardQuery = boardroomDB;
+                    if (modStatus == "Yes") {
+                        boardQuery.update({
+                            moderators: firebase.firestore.FieldValue.arrayUnion(userID[0]),
+                            members: firebase.firestore.FieldValue.arrayUnion(userID[0])
+                        });
+                    } else {
+                        boardQuery.update({
+                            members: firebase.firestore.FieldValue.arrayUnion(userID[0])
+                        });
+                    }
                 }
+                
             } else {
                 console.log("This feature is only for admins")
             }
@@ -207,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var pollTitle = document.forms.boardroom_poll_form.elements.pollName.value;
         var pollPatient = document.forms.boardroom_poll_form.elements.patientList.value;
-        pollPatient = pollPatient.split("=");
+        pollPatient = pollPatient.split("=>");
         var pollStartDate = document.forms.boardroom_poll_form.elements.start_date.value;
         var pollEndDate = document.forms.boardroom_poll_form.elements.end_date.value;
 
@@ -216,11 +203,23 @@ document.addEventListener('DOMContentLoaded', function () {
         jsDateEnd = new Date(pollEndDate);
         timeStampEnd = firebase.firestore.Timestamp.fromDate(jsDateEnd);
 
-        // //add validation here.
-        if(pollPatient[0] == ""){
+    
+        
+        //add validation here.
+
+        if (pollPatient[0] == "" || pollTitle == "") {
             console.log("fail");
-        }else{
-            boardroomDB.collection("polls").doc().set({endTime: timeStampEnd, startTime: timeStampStart, patient:pollPatient[0], pollName: pollTitle, votedUser: []});
+            alertPoll.style.display = "block";
+        } else {
+            boardroomDB.collection("polls").doc().set({ endTime: timeStampEnd, 
+                startTime: timeStampStart, 
+                patient: pollPatient[0], 
+                patientName: pollPatient[1],
+                pollName: pollTitle, 
+                votedUser: [] }).catch(function(error) {
+                console.error("Error creating poll: ");
+                alertPoll.style.display = "block";
+             });
         }
         document.getElementById('boardroom_poll_form').reset();
 
@@ -240,27 +239,61 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('sub_btn_poll').addEventListener('click', sendPoll);
     document.getElementById('sub_btn').addEventListener('click', send);
     document.getElementById('signOut_btn').addEventListener('click', signOut);
+    document.getElementsByClassName("close")[0].onclick = function () {
+        alertMem.style.display = "none";
+    }
+    document.getElementsByClassName("close")[1].onclick = function () {
+        alertPoll.style.display = "none";
+    }
+
 
     //Called to convert UNIX timestamps
-    function timeConverter(UNIX_timestamp){
+    function timeConverter(UNIX_timestamp) {
         var a = new Date(UNIX_timestamp * 1000);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
         var month = months[a.getMonth()];
         var date = a.getDate();
         var hour = a.getHours();
         var min = a.getMinutes();
         var sec = a.getSeconds();
-        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
         return time;
-      }
+    }
 
-
-      $("ul").on("click", "button", function(e) {
+    $('#memberPrint').on("click", "button.deleteMem", function (e) {
         e.preventDefault();
-        console.log($(this).parent())
-        console.log($(this).parent().attr('value'))
+        ID = $(this).parent().attr('value');
         $(this).parent().remove();
-        
+        boardroomDB.update({
+            members: firebase.firestore.FieldValue.arrayRemove(ID),
+            moderators: firebase.firestore.FieldValue.arrayRemove(ID)
+            }).catch(function(error) {
+            console.error("Error removing document: ", error);
+         });
+    });
+
+    $('#moderatorPrint').on("click", "button.deleteMod", function (e) {
+        e.preventDefault();
+        ID = $(this).parent().attr('value');
+        $(this).parent().remove();
+        boardroomDB.update({
+            moderators: firebase.firestore.FieldValue.arrayRemove(ID),
+            members: firebase.firestore.FieldValue.arrayRemove(ID)
+            }).catch(function(error) {
+            console.error("Error removing document: ", error);
+         });
+    });
+
+    $('#pollPrint').on("click", "button.deletePoll", function (e) {
+        e.preventDefault();
+        ID = $(this).parent().attr('value');
+        idPlit = ID.split(" ")
+        $(this).parent().remove();
+        boardroomDB.collection("polls").doc(idPlit[1]).delete().then(function() {
+            console.log("Document successfully deleted!");
+        }).catch(function(error) {
+            console.error("Error removing document: ", error);
+        });
     });
 });

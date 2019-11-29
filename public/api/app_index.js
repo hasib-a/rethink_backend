@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-
-
-    
+    //check the users logged in status
     firebase.auth().onAuthStateChanged(user => {
         var x = document.getElementById("signOut_btn");
         var y = document.getElementById("name_test");
@@ -23,26 +21,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+
+
+
     function setViability(user, y) {
-        //const adminUi = document.querySelectorAll('.admin');
         if (user.admin) {
             y.innerHTML += "    Admin ";
-            //adminUi.forEach(items => items.style.display = 'block');
         }
     }
 
     const signOut = function (ev) {
-
         ev.preventDefault();
         ev.stopPropagation();
         firebase.auth().signOut().then(function() {
-            // Sign-out successful.
           }).catch(function(error) {
-            // An error happened.
           });
     }
 
-    
     document.getElementById('signOut_btn').addEventListener('click', signOut);
 
 

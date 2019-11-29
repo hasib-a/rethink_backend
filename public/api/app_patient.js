@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     //Start the necessary apis. 
     const db = firebase.firestore();
-    const functions = firebase.functions();
     const patientDB = db.collection("patient");
 
 
@@ -22,13 +21,11 @@ document.addEventListener('DOMContentLoaded', function () {
             y.innerHTML = ""
             window.location.href = 'login.html';
         }
-        console.log(user);
     });
 
     //Hides elemnts depending on admin status
     function setViability(user, y) {
         const adminUi = document.querySelectorAll('.admin');
-        console.log(adminUi)
         if (user.admin) {
             y.innerHTML += "    Admin ";
             adminUi.forEach(items => items.style.display = 'block');
@@ -64,9 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.preventDefault();
         ev.stopPropagation();
         firebase.auth().signOut().then(function () {
-            // Sign-out successful.
         }).catch(function (error) {
-            // An error happened.
         });
     }
 
@@ -107,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
 
         ID = $(this).parent().attr('value');
-        console.log(ID);
         $(this).parent().remove();
     
         patientDB.doc(ID).delete().then(function () {

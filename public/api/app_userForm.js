@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         databaseURL: "https://rethink-16f07.firebaseio.com"
     };
     var secondaryApp = firebase.initializeApp(config, "Secondary");
-
-
+    var alert = document.getElementById("signInAlert");
 
     //check if the user is logged on
     firebase.auth().onAuthStateChanged(user => {
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     htmlOut += "<li class=\"list-group-item\"> <h6>User ID: " + doc.id + " </h6><br> <h6>Username: " + doc.data().userName + "</h6><br><h6>Type: " + doc.data().userType + "</h6></li>"
                 });
             }
-
             document.getElementById('userListPrint').innerHTML = htmlOut;
         });
     }
@@ -66,8 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
-
     //Clear the form
     const clear = function (ev) {
         ev.preventDefault();
@@ -79,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let adminCheck = "";
         firebase.auth().currentUser.getIdTokenResult().then(IdTokenResult => {
             adminCheck = IdTokenResult.claims.admin;
-            console.log(adminCheck)
             if (adminCheck == true) {
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -87,33 +82,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 let password = document.forms.userCreate.elements.password.value;
                 let userName = document.forms.userCreate.elements.userName.value;
                 let userType = document.forms.userCreate.elements.userType.value;
-                secondaryApp.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
-                    // Handle Errors here.
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    console.log("ERROR", errorCode)
-                    console.log(error.message)
-                }).then(newUser => {
-                    console.log(newUser.user)
-                    console.log("User " + newUser.user.uid + " created successfully!");
 
-                    if (userType == "Chairman") {
-                        const addAdminRole = functions.httpsCallable('addAdminRole')
-                        addAdminRole({ email: email }).then(result => {
-                            console.log(result);
-                        });
-                    };
+                if (email == "" || password == "" || userName == "") {
+                    alert.style.display = "block";
+                } else {
+                    secondaryApp.auth().createUserWithEmailAndPassword(email, password).catch(function (error) {
+                        // Handle Errors here.
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        console.log("ERROR", errorCode)
+                        console.log(error.message)
+                    }).then(newUser => {
+                        console.log(newUser.user)
+                        console.log("User " + newUser.user.uid + " created successfully!");
 
-                    var userData = {
-                        userName: userName,
-                        userType: userType
-                    };
-                    usersDB.doc(newUser.user.uid).set(userData);
+                        if (userType == "Chairman") {
+                            const addAdminRole = functions.httpsCallable('addAdminRole')
+                            addAdminRole({ email: email }).then(result => {
+                                console.log(result);
+                            });
+                        };
 
-                });
+                        var userData = {
+                            userName: userName,
+                            userType: userType
+                        };
+                        usersDB.doc(newUser.user.uid).set(userData);
+
+                    });
+                };
+
             } else {
                 console.log("This feature is only for admins")
-            }
+            };
             document.getElementById('userCreate').reset();
         });
 
@@ -131,18 +132,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-
-
-
-
-
-
-
-
     //Button Refrences
     document.getElementById('clr_btn').addEventListener('click', clear);
     document.getElementById('signUp_btn').addEventListener('click', signUp);
     document.getElementById('signOut_btn').addEventListener('click', signOut);
+    document.getElementsByClassName("close")[0].onclick = function () {
+        alert.style.display = "none";
+    }
 
 
     $("ul").on("click", "button", function (e) {
