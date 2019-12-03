@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     adminView = "inline";
                     }
             docItem.forEach(function (doc) {
-                htmlOutActive += "<li class=\"list-group-item\" value=\"" + doc.id + "\"><h6>Board ID: " + doc.id + " </h6><br> <h6>Board Name: " + doc.data().boardName + "</h6><br> <h6>Board Chairman: " + doc.data().boardChair + "</h6><a href=\"boardroomPage.html?var1=" + doc.id + "\"><input type=\"button\" value=\"More Info\"></a><button style=\"display: " + adminView + ";\" class=\"adminDisabled\">Delete</button></li>";
+                htmlOutActive += "<li class=\"list-group-item\" value=\"" + doc.id + "\"><h6>Board ID: " + doc.id + " </h6><br> <h6>Board Name: " + doc.data().boardName + "</h6><br> <h6>Board Chairman: " + doc.data().boardChair + "</h6><a href=\"boardroomPage.html?var1=" + doc.id  + "&var2="+ doc.data().boardName +"\"><input type=\"button\" value=\"More Info\"></a><button style=\"display: " + adminView + ";\" class=\"adminDisabled\">Delete</button></li>";
             })
             if(docItem.empty != true){
                 document.querySelector('#boardroomListPrint').innerHTML = htmlOutActive;

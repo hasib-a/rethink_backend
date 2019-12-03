@@ -8,12 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     boardID = data.var1
     pollID = data.var2
-
+    var pollName = data.var3;
+    pollName = pollName.replace(/%20/g, " ");
     //Start the necessary apis. 
     const db = firebase.firestore();
     const functions = firebase.functions();
     const pollDB = db.collection("boardroom").doc(boardID).collection("polls").doc(pollID);
 
+    document.querySelector('#pg_ttl').innerHTML = "Poll Name: " + pollName + "<br>  Poll ID - " + pollID;
     //check if the user is logged on
     firebase.auth().onAuthStateChanged(user => {
         var x = document.getElementById("signOut_btn");
@@ -31,13 +33,11 @@ document.addEventListener('DOMContentLoaded', function () {
             y.innerHTML = ""
             window.location.href = 'login.html';
         }
-        console.log(user);
     });
 
     //Hides elemnts depending on admin status
     function setViability(user, y) {
         const adminUi = document.querySelectorAll('.admin');
-        console.log(adminUi)
         if (user.admin) {
             y.innerHTML += "    Admin ";
             adminUi.forEach(items => items.style.display = 'block');
@@ -65,26 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const clear = function (ev) {
-        ev.preventDefault();
-        document.getElementById('fromLogin').reset();
-    }
-    const send = function (ev) {
-
-    }
-
 
     //Button references 
-    document.getElementById('clr_btn').addEventListener('click', clear);
-    document.getElementById('sub_btn').addEventListener('click', send);
     document.getElementById('signOut_btn').addEventListener('click', signOut);
 
-
-    $("ul").on("click", "button", function (e) {
-        e.preventDefault();
-        console.log($(this).parent())
-        console.log($(this).parent().attr('value'))
-        $(this).parent().remove();
-
-    });
 });

@@ -6,14 +6,18 @@ document.addEventListener('DOMContentLoaded', function () {
         tmp = params[i].split('=');
         data[tmp[0]] = tmp[1];
     }
-    boardID = data.var1
-    pollID = data.var2
+    var boardID = data.var1;
+    var pollID = data.var2;
+    var pollName = data.var3;
+    pollName = pollName.replace(/%20/g, " ");
     //Start the necessary apis. 
     const db = firebase.firestore();
     const functions = firebase.functions();
     const pollDB = db.collection("boardroom").doc(boardID).collection("polls").doc(pollID);
     const userDB = db.collection("users");
     var userUID = "";
+
+    document.querySelector('#pg_ttl').innerHTML = "Poll Name: " + pollName + "<br>  Poll ID - " + pollID + "  ";
 
     //check if the user is logged on
     firebase.auth().onAuthStateChanged(user => {
@@ -26,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 pollDB.get().then(function(doc){
                 let userArray = doc.data().votedUser; 
                 if(userArray.includes(user.uid)){
-                    window.location.href = 'results.html?var1='+ boardID + "&var2=" + pollID;
+                    window.location.href = 'results.html?var1='+ boardID + "&var2=" + pollID + "&var3=" + pollName;
                 }else{
                     x.style.display = "block";
                     y.innerHTML = "User ID: " + user.uid + "   ";
@@ -189,9 +193,9 @@ document.addEventListener('DOMContentLoaded', function () {
         pollDB.update({
             votedUser: firebase.firestore.FieldValue.arrayUnion(userUID)
         }).then(function(){
-            window.location.href = 'results.html?var1='+boardID;
+            window.location.href = 'results.html?var1='+boardID+ "&var2=" + pollID + "&var3=" + pollName;
         })
-        //
+        
     });
     $('#pg_quest').on("click", "button.delete", function (e) {
         e.preventDefault();

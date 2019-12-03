@@ -1,10 +1,19 @@
 document.addEventListener('DOMContentLoaded', function () {
     //Read the HTML data
-    var queryString = decodeURIComponent(window.location.search);
-    queryString = queryString.substring(1);
-    var queries = queryString.split("=");
-    var idFinal = queries[1];
-    document.querySelector('#pg_ttl').innerHTML = "Boardroom ID - " + idFinal + "  ";
+
+    
+    var url = document.location.href,
+    params = url.split('?')[1].split('&'),
+    data = {}, tmp;
+for (var i = 0, l = params.length; i < l; i++) {
+    tmp = params[i].split('=');
+    data[tmp[0]] = tmp[1];
+}   
+    var idFinal = data.var1;
+    var boardName = data.var2
+    var boardName = boardName.replace(/%20/g, " ");
+
+    document.querySelector('#pg_ttl').innerHTML = "Board Name: " + boardName + "<br>  Board ID - " + idFinal + "  ";
     var alertMem = document.getElementById("addUserInAlert");
     var alertPoll = document.getElementById("addPollAlert");
     
@@ -138,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 htmlOutPoll += "<li class=\"list-group-item\" value=\"" + idFinal + " " + doc.id + "\"><div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Poll ID: " + doc.id + "</h6></div>"
                 htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Poll Name: " + doc.data().pollName + "</h6></div></div>"
                 htmlOutPoll += "<div class=\"d-flex flex-row bd-highlight mb-3\"><div class=\"p-2 bd-highlight\"><h6>Start Date: " + startDate + " </h6></div><div class=\"p-2 bd-highlight\"><h6>End Date: " + endDate + "</h6></div></div>"
-                htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Patient Name: " + doc.data().patient + " </h6></div><a href=\"pollPage.html?var1=" + idFinal + "&var2=" + doc.id + "\"><input type=\"button\" value=\"Enter Poll\"></a><button class=\"deletePoll\"style=\"display: " + adminCheckValue + ";\">delete</button></li>"
+                htmlOutPoll += "<div class=\"p-2 bd-highlight\"><h6>Patient Name: " + doc.data().patient + " </h6></div><a href=\"pollPage.html?var1=" + idFinal + "&var2=" + doc.id + "&var3=" + doc.data().pollName + "\"><input type=\"button\" value=\"Enter Poll\"></a><button class=\"deletePoll\"style=\"display: " + adminCheckValue + ";\">delete</button></li>"
 
             });
             document.querySelector('#pollPrint').innerHTML = htmlOutPoll;
