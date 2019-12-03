@@ -82,6 +82,13 @@ document.addEventListener('DOMContentLoaded', function () {
         let pntAge = document.forms.patientForm.elements.patientAge.value;
         let pntDescription = document.forms.patientForm.elements.PatientDesc.value;
         let patientID = ID();
+
+        //XSS filter
+        pntName = filterXSS(pntName);
+        pntGender = filterXSS(pntGender);
+        pntAge = filterXSS(pntAge);
+        pntDescription = filterXSS(pntDescription);
+
         patientDB.doc(patientID).set({pntName: pntName,pntDescription: pntDescription,pntAge:pntAge,pntGender: pntGender});
         document.getElementById('patientForm').reset();
       }

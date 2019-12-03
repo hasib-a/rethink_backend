@@ -83,6 +83,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 let userName = document.forms.userCreate.elements.userName.value;
                 let userType = document.forms.userCreate.elements.userType.value;
 
+                email = filterXSS(email);
+                password = filterXSS(password);
+                userName = filterXSS(userName);
+                userType = filterXSS(userType);
                 if (email == "" || password == "" || userName == "") {
                     alert.style.display = "block";
                 } else {

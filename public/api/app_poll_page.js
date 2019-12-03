@@ -24,8 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
         var x = document.getElementById("signOut_btn");
         var y = document.getElementById("name_test");
         
-
-            
             if (user) {
                 pollDB.get().then(function(doc){
                 let userArray = doc.data().votedUser; 
@@ -122,6 +120,10 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.preventDefault();
         ev.stopPropagation();
         var questionIn = document.forms.questAdd.elements.question.value;
+
+        //XSS filter
+        questionIn = filterXSS(questionIn);
+
         if (questionIn == "") {
             console.log("Fail");
         } else {
@@ -134,6 +136,10 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.stopPropagation();
         var commentIn = document.forms.commentAdd.elements.comment.value;
         var currentTime = firebase.firestore.Timestamp.fromDate(new Date());
+
+        //XSS filter
+        commentIn = filterXSS(commentIn);
+
         if (commentIn == "") {
             console.log("Fail");
         } else {

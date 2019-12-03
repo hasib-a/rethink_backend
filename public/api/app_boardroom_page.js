@@ -172,7 +172,11 @@ for (var i = 0, l = params.length; i < l; i++) {
                 let userID = document.forms.memberForm.elements.memberList.value;
                 let modStatus = document.forms.memberForm.elements.moderator.value;
                 userID = userID.split(' ')
-
+                
+                //Xss Filter
+                userID[0] = filterXSS(userID[0]);
+                modStatus = filterXSS(modStatus);
+                
                 if (userID == "") {
                     alertMem.style.display = "block";
                 } else {
@@ -214,7 +218,11 @@ for (var i = 0, l = params.length; i < l; i++) {
 
     
         
-        //add validation here.
+        //Xss filter
+        pollTitle= filterXSS(pollTitle);
+        pollPatient[0] = filterXSS(pollPatient[0]);
+        pollPatient[1] = filterXSS(pollPatient[1]);
+
 
         if (pollPatient[0] == "" || pollTitle == "") {
             console.log("fail");

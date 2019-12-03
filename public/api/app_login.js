@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     });
-    // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+
     const clear = function (ev) {
         ev.preventDefault();
         document.getElementById('fromLogin').reset();
@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.stopPropagation();
         let email = document.forms.fromLogin.elements.email.value;    
         let password = document.forms.fromLogin.elements.password.value;
+
+        email = filterXSS(email);
+        password = filterXSS(password);
+
         firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
             // Handle Errors here.
             var errorCode = error.code;

@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     adminView = "inline";
                     }
             docItem.forEach(function (doc) {
-                htmlOutActive += "<li class=\"list-group-item\" value=\"" + doc.id + "\"><h6>Board ID: " + doc.id + " </h6><br> <h6>Board Name: " + doc.data().boardName + "</h6><br> <h6>Board Chairman: " + doc.data().boardChair + "</h6><a href=\"boardroomPage.html?var1=" + doc.id  + "&var2="+ doc.data().boardName +"\"><input type=\"button\" value=\"More Info\"></a><button style=\"display: " + adminView + ";\" class=\"adminDisabled\">Delete</button></li>";
+                htmlOutActive += "<li class=\"list-group-item\" value=\"" + doc.id + "\"><h6>Board ID: " + doc.id + " </h6><br> <h6>Board Name: " + doc.data().boardName + "</h6><br> <h6>Board Chairman: " + doc.data().boardChairName + "</h6><a href=\"boardroomPage.html?var1=" + doc.id  + "&var2="+ doc.data().boardName +"\"><input type=\"button\" value=\"More Info\"></a><button style=\"display: " + adminView + ";\" class=\"adminDisabled\">Delete</button></li>";
             })
             if(docItem.empty != true){
                 document.querySelector('#boardroomListPrint').innerHTML = htmlOutActive;
@@ -101,12 +101,19 @@ document.addEventListener('DOMContentLoaded', function () {
         for(var i = 2; i < boardChairSplit.length; i++){
             nameConcat += boardChairSplit[i] + " ";
         }
+
+        //filter for xss attacks
+        boardTopic = filterXSS(boardTopic);
+        nameConcat = filterXSS(nameConcat);
+        boardChairFinal = filterXSS(boardChairSplit[0]);
+
+
         if(boardTopic == "" || boardChair == ""){
             alert.style.display = "block";
         }else{
             if(boardChairSplit[0] ==  LoggedUserID) {
                 var boardData = {
-                    boardChair: boardChairSplit[0],
+                    boardChair: boardChairFinal,
                     boardChairName: nameConcat,
                     boardName: boardTopic,
                     members: [LoggedUserID,"6n4Irb6nIMdzpM5m3jlgge6nkQO2"],
